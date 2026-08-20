@@ -1,0 +1,42 @@
+# Retained measurement runs: evidence for a decision, archived with the change
+# that cites them rather than committed here.
+/results/
+
+# Runner configuration: the artifact coordinates on one machine, not a property
+# of the suite. Start from jmh.env.example, or ./jmh.sh env --init.
+/jmh.env
+
+# Compiled class file
+*.class
+.tmp.*
+
+# Log file
+*.log
+*.out
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# crash files
+hs_err_pid*
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+target
+
+### macOS template
+.DS_Store
+._*
+
+# maven flatten plugin
+.flattened-pom.xml
+/htmlReport/

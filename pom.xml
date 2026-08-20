@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2025-2026 William David Louth
+  -->
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.humainary.perfkit</groupId>
+  <artifactId>humainary-perfkit</artifactId>
+  <version>3.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>Humainary Perfkit</name>
+  <description>JMH benchmark suite for Java providers of the Humainary Substrates and Serventis
+    APIs.
+  </description>
+  <url>https://github.com/humainary-io/perfkit-java</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:https://github.com/humainary-io/perfkit-java.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/humainary-io/perfkit-java.git</developerConnection>
+    <url>https://github.com/humainary-io/perfkit-java</url>
+  </scm>
+
+  <properties>
+    <!--
+      The APIs this suite measures against are resolved artifacts, versioned
+      independently of this project and of each other. This suite's own version
+      above says nothing about which API release a provider implements, so
+      binding them together would make measuring a provider built against
+      another API release impossible without editing this file.
+    -->
+    <substrates.api.version>3.0.0</substrates.api.version>
+    <serventis.api.version>3.0.0</serventis.api.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.version>26</java.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
+    <jmh.version>1.37</jmh.version>
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>io.humainary.substrates</groupId>
+      <artifactId>humainary-substrates-api</artifactId>
+      <version>${substrates.api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.humainary.serventis</groupId>
+      <artifactId>humainary-serventis-api</artifactId>
+      <version>${serventis.api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>${jmh.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>${jmh.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <release>${java.version}</release>
+          <debug>false</debug>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.openjdk.jmh</groupId>
+              <artifactId>jmh-generator-annprocess</artifactId>
+              <version>${jmh.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${maven-assembly-plugin.version}</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>org.openjdk.jmh.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <!--
+    The provider is supplied by the environment rather than named here. Nothing
+    in this project depends on a particular implementation of the Substrates
+    SPI: supplying substrates.spi.artifactId activates the dependency, and the
+    provider is selected at runtime through ServiceLoader. A build without
+    these coordinates produces a suite with no provider, which is the correct
+    default for a measurement harness that does not own one.
+  -->
+
+  <profiles>
+    <profile>
+      <id>spi-provider</id>
+      <activation>
+        <property>
+          <name>substrates.spi.artifactId</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>${substrates.spi.groupId}</groupId>
+          <artifactId>${substrates.spi.artifactId}</artifactId>
+          <version>${substrates.spi.version}</version>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
+</project>
